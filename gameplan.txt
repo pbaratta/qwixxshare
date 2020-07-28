@@ -1,0 +1,49 @@
+quixx is a game that is pretty easy to play remotely. players take turns,
+ rolling the dice and marking out squares on their scoresheet.
+
+to play remotely, the least we need to do is have the active player push the
+ "roll" button and everyone's screens update with the current roll.
+
+to make it more complicated, we can model the scoresheets and highlight
+ available moves to the player. this would allow AI play as well.
+
+
+-----<{[ EASY VERSION ]}>-----
+
+1. identify yourself
+2. click "roll" -> server responds with a roll
+	"Pete rolled a 3/4/5/4/2/1"
+3. roll history available
+
+
+-----<{[ COMPLICATED VERSION ]}>-----
+
+assemble the group:
+1. player1 asks to start a game, gets a room code
+2. player2 .. playerN join via code
+3. player1 chooses to start game
+
+
+
+play the game:
+
+server
+player1
+player2
+player3
+...
+
+
+1. server says "player1 it's your turn"
+2. player1 rolls
+3. everyone sees the roll
+4. player1 picks their move
+5. all other players get to pick theirs if they'd like
+6. player1 turn is over
+
+4/5 may be switched, can't remember the rules.
+4/5 may lead to a row being finished:
+	1. prompt a last chance for people to pick the row
+	2. forbid people from picking it after
+	3. scores for the row solidified (enter on scoresheet)
+	4. the second row finished ends the game
