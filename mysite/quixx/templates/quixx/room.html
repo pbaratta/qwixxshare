@@ -5,10 +5,22 @@
     <title>Quixx Game</title>
 </head>
 <body>
-    <textarea id="previous-rolls" cols="100" rows="20"></textarea><br>
-    <input id="new-roll-submit" type="button" value="Roll">
+    <div id="username-area">
+        <p>Playing as:
+            <input id="username-input" type="text"/>
+            <span id="username-set-display">&check;</span>
+            <button id="username-randomize">Random</button>
+        </p>
+    </div>
+
+    <div id="gameplay-area">
+        <textarea id="previous-rolls" cols="100" rows="20"></textarea><br>
+        <input id="new-roll-submit" type="button" value="Roll">
+    </div>
+
     {{ room_name|json_script:"room-name" }}
     <script>
+        var username;
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
         const gameSocket = new WebSocket(
@@ -23,20 +35,146 @@
             const data = JSON.parse(e.data);
 
             if (data.event == 'roll_broadcast') {
-                document.querySelector('#previous-rolls').value += (data.roll + '\n');
+                const userSource = data.user_source.replace("\n", "\\n");
+                const newRollText = (
+                    "(" + userSource + ")" +
+                    " rolled " +
+                    data.roll +
+                    "\n"
+                );
+
+                document.querySelector('#previous-rolls').value += newRollText;
             }
         };
 
         gameSocket.onclose = function(e) {
             console.error('Game socket closed unexpectedly');
+            // TODO reconnect
         };
 
         document.querySelector('#new-roll-submit').onclick = function(e) {
             gameSocket.send(JSON.stringify({
                 'event': 'roll_ask',
+                'user_source': username,
                 'num_dice': 6,
             }));
         };
+
+        const usernameInput = document.querySelector('#username-input');
+        const usernameSetDisplay = document.querySelector('#username-set-display');
+
+        usernameInput.addEventListener('focusin', (e) => {
+            usernameSetDisplay.style.visibility = 'hidden';
+        });
+
+        usernameInput.addEventListener('focusout', (e) => {
+            setUsername(e.target.value);
+        });
+
+        document.querySelector('#username-randomize').addEventListener('click', (e) => {
+            setUsername("");
+        });
+
+        window.onload = function(e) {
+            setUsername(getCookie("username"));
+        };
+
+        function setUsername(un) {
+            if (un == "" || un == undefined) {
+                un = generateUsername();
+            }
+
+            username = un;
+            usernameInput.value = username;
+            setCookie("username", username, 7*24*60*60);
+            usernameSetDisplay.style.visibility = '';
+        }
+
+        function generateUsername() {
+            let colors = [
+                'Red',
+                'Orange',
+                'Yellow',
+                'Chartreuse',
+                'Green',
+                'Cyan',
+                'Azure',
+                'Blue',
+                'Violet',
+                'Magenta',
+                'Rose',
+            ]
+            let animals = [
+                'Fox',
+                'Squirrel',
+                'Chipmunk',
+                'Possum',
+                'Porcupine',
+                'Otter',
+                'Raccoon',
+                'Mole',
+                'Owl',
+                'Deer',
+                'Mouse',
+                'Horse',
+                'Sheep',
+                'Bison',
+                'Rabbit',
+                'Hedgehog',
+                'Wolf',
+                'Dolphin',
+                'Bear',
+                'Coyote',
+                'Octopus',
+                'Seal',
+                'Snake',
+                'Elk',
+                'Beaver',
+                'Woodchuck',
+                'Hawk',
+                'Sparrow',
+                'Robin',
+                'Bat',
+            ]
+
+            let username = [
+                randomChoice(colors),
+                randomChoice(animals),
+                randomRange(10, 100)
+            ].join("");
+
+            return username;
+        }
+
+        function randomRange(min, max) {
+            return min + Math.floor(Math.random() * (max - min));
+        }
+
+        function randomChoice(list) {
+            return list[randomRange(0, list.length)];
+        }
+
+        function setCookie(key, value, maxAge) {
+            let cookieStr = (
+                key +
+                "=" + encodeURIComponent(value) +
+                ";max-age=" + maxAge
+            );
+            document.cookie = cookieStr
+        }
+
+        function getCookie(key) {
+            let cookieArr = document.cookie.split(";");
+            for (var i = 0; i < cookieArr.length; i ++) {
+                let cookiePair = cookieArr[i].split("=");
+
+                if (cookiePair[0].trim() == key) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+
+            return "";
+        }
     </script>
 </body>
 </html>

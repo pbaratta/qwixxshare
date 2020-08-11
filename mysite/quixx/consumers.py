@@ -49,9 +49,10 @@ class QuixxGameConsumer(WebsocketConsumer):
                 self.game_group_name,
                 {
                     'type': 'roll_broadcast',
+                    'user_source': data['user_source'],  # TODO xss protect
                     'sides': sides,
                     'num_dice': num_dice,
-                    'roll': roll
+                    'roll': roll,
                 }
             )
 
@@ -64,6 +65,7 @@ class QuixxGameConsumer(WebsocketConsumer):
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'event': 'roll_broadcast',
+            'user_source': event['user_source'],
             'sides': event['sides'],
             'num_dice': event['num_dice'],
             'roll': event['roll'],
