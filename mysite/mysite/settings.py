@@ -36,7 +36,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'channels',
-    'quixx',
+    'qwixx',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

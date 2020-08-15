@@ -3,7 +3,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 import random
 
-class QuixxGameConsumer(WebsocketConsumer):
+class QwixxGameConsumer(WebsocketConsumer):
     " Gateway on the server for one particular game player "
 
     def connect(self):

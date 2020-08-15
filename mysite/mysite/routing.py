@@ -1,12 +1,12 @@
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
-import quixx.routing
+import qwixx.routing
 
 application = ProtocolTypeRouter({
     # (http->django views is added by default)
     'websocket': AuthMiddlewareStack(
         URLRouter(
-            quixx.routing.websocket_urlpatterns
+            qwixx.routing.websocket_urlpatterns
         )
     ),
 })
