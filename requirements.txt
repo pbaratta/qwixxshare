@@ -1,0 +1,5 @@
+channels==2.4.0
+channels-redis==3.0.1
+daphne==2.5.0
+Django==3.0.8
+selenium==3.141.0

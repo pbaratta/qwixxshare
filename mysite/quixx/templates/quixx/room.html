@@ -20,7 +20,7 @@
 
     {{ room_name|json_script:"room-name" }}
     <script>
-        var username;
+        var username;  // mutable string value
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
         const gameSocket = new WebSocket(
@@ -31,6 +31,7 @@
             + '/'
         );
 
+        /** after recieving roll data, displays it for user */
         gameSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
 
@@ -47,49 +48,57 @@
             }
         };
 
+        /** provide debug information when websocket fails */
         gameSocket.onclose = function(e) {
             console.error('Game socket closed unexpectedly');
             // TODO reconnect
         };
 
+        /** after user input, ask the server for a new roll */
         document.querySelector('#new-roll-submit').onclick = function(e) {
             gameSocket.send(JSON.stringify({
                 'event': 'roll_ask',
                 'user_source': username,
-                'num_dice': 6,
+                'num_dice': 6,  // TODO how many dice?
             }));
         };
 
         const usernameInput = document.querySelector('#username-input');
         const usernameSetDisplay = document.querySelector('#username-set-display');
 
+        /** provide visual cue that username is being changed */
         usernameInput.addEventListener('focusin', (e) => {
             usernameSetDisplay.style.visibility = 'hidden';
         });
 
+        /** update model with new username */
         usernameInput.addEventListener('focusout', (e) => {
             setUsername(e.target.value);
         });
 
+        /** reset username to random selection */
         document.querySelector('#username-randomize').addEventListener('click', (e) => {
             setUsername("");
         });
 
+        /** set username to cookie value (if it exists) */
         window.onload = function(e) {
             setUsername(getCookie("username"));
         };
 
+        /** display new username and save it as a cookie */
         function setUsername(un) {
             if (un == "" || un == undefined) {
                 un = generateUsername();
             }
 
-            username = un;
-            usernameInput.value = username;
+            username = un;  // global variable
+            usernameInput.value = username;  // display back to user
             setCookie("username", username, 7*24*60*60);
-            usernameSetDisplay.style.visibility = '';
+            usernameSetDisplay.style.visibility = '';  // indicate username is not being edited anymore
         }
 
+        /** provide a new random username of the format (Color)(Animal)(2 digit number) */
         function generateUsername() {
             let colors = [
                 'Red',
@@ -146,14 +155,17 @@
             return username;
         }
 
+        /** provide a random number from `min` to `max-1` */
         function randomRange(min, max) {
             return min + Math.floor(Math.random() * (max - min));
         }
 
+        /** provide a random entry from the list */
         function randomChoice(list) {
             return list[randomRange(0, list.length)];
         }
 
+        /** set a cookie `key=value; max-age=maxAge` */
         function setCookie(key, value, maxAge) {
             let cookieStr = (
                 key +
@@ -163,6 +175,7 @@
             document.cookie = cookieStr
         }
 
+        /** get the cookie corresponding to `key` */
         function getCookie(key) {
             let cookieArr = document.cookie.split(";");
             for (var i = 0; i < cookieArr.length; i ++) {
