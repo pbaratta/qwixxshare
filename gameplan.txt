@@ -1,4 +1,4 @@
-quixx is a game that is pretty easy to play remotely. players take turns,
+qwixx is a game that is pretty easy to play remotely. players take turns,
  rolling the dice and marking out squares on their scoresheet.
 
 to play remotely, the least we need to do is have the active player push the

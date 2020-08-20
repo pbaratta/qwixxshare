@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Qwixx Game</title>
+</head>
+<body>
+    <div id="username-area">
+        <p>Playing as:
+            <input id="username-input" type="text"/>
+            <span id="username-set-display">&check;</span>
+            <button id="username-randomize">Random</button>
+        </p>
+    </div>
+
+    <div id="gameplay-area">
+        <textarea id="previous-rolls" cols="100" rows="20"></textarea><br>
+        <input id="new-roll-submit" type="button" value="Roll">
+    </div>
+
+    {{ room_name|json_script:"room-name" }}
+    <script>
+        var username;  // mutable string value
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const gameSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/qwixx/'
+            + roomName
+            + '/'
+        );
+
+        /** after recieving roll data, displays it for user */
+        gameSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+
+            if (data.event == 'roll_broadcast') {
+                const userSource = data.user_source.replace("\n", "\\n");
+                const newRollText = (
+                    "(" + userSource + ")" +
+                    " rolled " +
+                    data.roll +
+                    "\n"
+                );
+
+                document.querySelector('#previous-rolls').value += newRollText;
+            }
+        };
+
+        /** provide debug information when websocket fails */
+        gameSocket.onclose = function(e) {
+            console.error('Game socket closed unexpectedly');
+            // TODO reconnect
+        };
+
+        /** after user input, ask the server for a new roll */
+        document.querySelector('#new-roll-submit').onclick = function(e) {
+            gameSocket.send(JSON.stringify({
+                'event': 'roll_ask',
+                'user_source': username,
+                'num_dice': 6,  // TODO how many dice?
+            }));
+        };
+
+        const usernameInput = document.querySelector('#username-input');
+        const usernameSetDisplay = document.querySelector('#username-set-display');
+
+        /** provide visual cue that username is being changed */
+        usernameInput.addEventListener('focusin', (e) => {
+            usernameSetDisplay.style.visibility = 'hidden';
+        });
+
+        /** update model with new username */
+        usernameInput.addEventListener('focusout', (e) => {
+            setUsername(e.target.value);
+        });
+
+        /** reset username to random selection */
+        document.querySelector('#username-randomize').addEventListener('click', (e) => {
+            setUsername("");
+        });
+
+        /** set username to cookie value (if it exists) */
+        window.onload = function(e) {
+            setUsername(getCookie("username"));
+        };
+
+        /** display new username and save it as a cookie */
+        function setUsername(un) {
+            if (un == "" || un == undefined) {
+                un = generateUsername();
+            }
+
+            username = un;  // global variable
+            usernameInput.value = username;  // display back to user
+            setCookie("username", username, 7*24*60*60);
+            usernameSetDisplay.style.visibility = '';  // indicate username is not being edited anymore
+        }
+
+        /** provide a new random username of the format (Color)(Animal)(2 digit number) */
+        function generateUsername() {
+            let colors = [
+                'Red',
+                'Orange',
+                'Yellow',
+                'Chartreuse',
+                'Green',
+                'Cyan',
+                'Azure',
+                'Blue',
+                'Violet',
+                'Magenta',
+                'Rose',
+            ]
+            let animals = [
+                'Fox',
+                'Squirrel',
+                'Chipmunk',
+                'Possum',
+                'Porcupine',
+                'Otter',
+                'Raccoon',
+                'Mole',
+                'Owl',
+                'Deer',
+                'Mouse',
+                'Horse',
+                'Sheep',
+                'Bison',
+                'Rabbit',
+                'Hedgehog',
+                'Wolf',
+                'Dolphin',
+                'Bear',
+                'Coyote',
+                'Octopus',
+                'Seal',
+                'Snake',
+                'Elk',
+                'Beaver',
+                'Woodchuck',
+                'Hawk',
+                'Sparrow',
+                'Robin',
+                'Bat',
+            ]
+
+            let username = [
+                randomChoice(colors),
+                randomChoice(animals),
+                randomRange(10, 100)
+            ].join("");
+
+            return username;
+        }
+
+        /** provide a random number from `min` to `max-1` */
+        function randomRange(min, max) {
+            return min + Math.floor(Math.random() * (max - min));
+        }
+
+        /** provide a random entry from the list */
+        function randomChoice(list) {
+            return list[randomRange(0, list.length)];
+        }
+
+        /** set a cookie `key=value; max-age=maxAge` */
+        function setCookie(key, value, maxAge) {
+            let cookieStr = (
+                key +
+                "=" + encodeURIComponent(value) +
+                ";max-age=" + maxAge
+            );
+            document.cookie = cookieStr
+        }
+
+        /** get the cookie corresponding to `key` */
+        function getCookie(key) {
+            let cookieArr = document.cookie.split(";");
+            for (var i = 0; i < cookieArr.length; i ++) {
+                let cookiePair = cookieArr[i].split("=");
+
+                if (cookiePair[0].trim() == key) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+
+            return "";
+        }
+    </script>
+</body>
+</html>
