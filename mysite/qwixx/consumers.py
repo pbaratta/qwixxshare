@@ -61,6 +61,14 @@ class QwixxGameConsumer(WebsocketConsumer):
         " somebody just rolled, we need to send it to the client "
 
         # print(f"roll_broadcast({event})")
+        # u = json.dumps({
+        #     'event': 'roll_broadcast',
+        #     'user_source': event['user_source'],
+        #     'sides': event['sides'],
+        #     'num_dice': event['num_dice'],
+        #     'roll': event['roll'],
+        # })
+        # print(f"sending {u}")
 
         # Send message to WebSocket
         self.send(text_data=json.dumps({

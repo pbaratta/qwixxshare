@@ -26,3 +26,6 @@ To get the server up-and-running:
 1. [install docker](https://docs.docker.com/engine/install/ubuntu/), then download and run redis (`docker run -p 6379:6379 -d redis:5`)
 1. run the webserver (`python manage.py runserver 0.0.0.0:8000` or `daphne -b 0.0.0.0 -p 8000 mysite.asgi:application`)
 1. load "localhost:8000/qwixx/"
+
+## Testing
+Configured for use with `pytest` (using `pytest-django` and `pytest-asyncio`). Run tests in the `mysite` directory, simply run `pytest`. For coverage analysis, use `coverage run -m pytest` and `coverage html`.

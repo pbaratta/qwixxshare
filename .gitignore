@@ -1,3 +1,5 @@
 venv/
 secret_key.txt
 *.py[cod]
+.coverage
+htmlcov/
