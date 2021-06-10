@@ -1,7 +1,7 @@
 channels==2.4.0
 channels-redis==3.0.1
 daphne==2.5.0
-Django==3.0.14
+Django==3.1.12
 selenium==3.141.0
 pytest==6.0.1
 pytest-asyncio==0.14.0
